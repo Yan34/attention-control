@@ -5,8 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:attention_control"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="Программа оценки вовлечённсти" Height="310" Width="671" MaxHeight="310" MaxWidth="671" MinHeight="310" MinWidth="671">
+    <Grid Margin="0,0,-8.4,-20">
+        <TextBlock x:Name="labelAreaCoordinates" Text="Область не выбрана" TextWrapping="Wrap" Margin="36,22,489,104"/>
+        <Grid Margin="452,22,50.4,104">
+            <Button x:Name="btnStartStop" Content="Начать отслеживание" Margin="2,0,0,0" Click="btnStartStop_Click" Height="19" VerticalAlignment="Top" HorizontalAlignment="Left" Width="152"/>
+            <TextBlock x:Name="labelEyesCoordinates" TextWrapping="Wrap" Margin="0,0,-0.4,0" Height="136" VerticalAlignment="Bottom"/>
+        </Grid>
+        <Grid Margin="218,22,0,0" Height="189" VerticalAlignment="Top" HorizontalAlignment="Left" Width="129">
+            <Button x:Name="btnManualCoords" Content="Ввести координаты                 " Margin="2,0,-0.4,170" Click="btnManualCoords_Click" HorizontalAlignment="Left" Width="120"/>
+            <Label x:Name="label" Content="X1:" Margin="0,27,95.6,130"/>
+            <TextBox x:Name="boxX1" TextWrapping="Wrap" Margin="26,29,0,137" HorizontalAlignment="Left" Width="80"/>
+            <Label x:Name="label2" Content="Y1:" Margin="0,69,95.6,88"/>
+            <TextBox x:Name="boxY1" TextWrapping="Wrap" Margin="26,71,0,95" HorizontalAlignment="Left" Width="80"/>
+            <Label x:Name="label1" Content="X2:" Margin="0,111,95.6,42"/>
+            <TextBox x:Name="boxX2" TextWrapping="Wrap" Margin="26,113,0,53" HorizontalAlignment="Left" Width="80"/>
+            <Label x:Name="label3" Content="Y2:" Margin="0,152,95.6,0"/>
+            <TextBox x:Name="boxY2" TextWrapping="Wrap" Margin="26,154,0,12" HorizontalAlignment="Left" Width="80"/>
+        </Grid>
+        <Label x:Name="labelAlert" Foreground="Red" Content="Вы отвлеклись! Сосредоточьтесь!" Margin="63,0,65.4,37"
+               FontSize="29" FontWeight="Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="62" VerticalAlignment="Bottom"/>
+
     </Grid>
 </Window>
