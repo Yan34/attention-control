@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using Tobii.Interaction;
 
 namespace attention_control
@@ -36,11 +38,14 @@ namespace attention_control
 
         System.Windows.Threading.DispatcherOperation gazeStream;
 
+        Task blinking=null;
+
         public MainWindow()
         {
             InitializeComponent();
             isEnabled = false;
             leftUpX = -1; leftUpY = -1; rightDownX = -1; rightDownY = -1;
+            blinking = Blink(labelAlert, Brushes.Aqua, 500, 500, CancellationToken.None);
             labelAlert.Visibility = Visibility.Hidden;
         }
 
@@ -111,6 +116,7 @@ namespace attention_control
         {
             if (isEnabled == true)
             {
+
                 labelEyesCoordinates.Text = "Положение взгляда:\nX = " + (int)x + "\nY = " + (int)y;
                 if (x < leftUpX || x > rightDownX || y < leftUpY || y > rightDownY)
                 {
@@ -121,6 +127,19 @@ namespace attention_control
                 {
                     if (labelAlert.Visibility == Visibility.Visible) labelAlert.Visibility = Visibility.Hidden;
                 }
+            }
+        }
+
+        async Task Blink(
+            Label l, Brush color,
+            int on, int off, CancellationToken ct)
+        {
+            while(true)
+            {
+                l.Background = color;
+                await Task.Delay(on, ct);
+                l.Background = Brushes.Transparent;
+                await Task.Delay(off, ct);
             }
         }
     }
