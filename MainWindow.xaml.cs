@@ -28,6 +28,14 @@ namespace attention_control
 
         private bool isEnabled;
 
+        private Host host = new Host();
+
+        private GazePointDataStream gazePointDataStream;
+
+        public delegate void SetEyePointDeligate(double x, double y, double ts);
+
+        System.Windows.Threading.DispatcherOperation gazeStream;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -62,12 +70,58 @@ namespace attention_control
         private void btnStartStop_Click(object sender, RoutedEventArgs e)
         {
             //если отслеживание не запущено
+            if(isEnabled==false)
+            {
                 //если координаты не заданы
+                if (leftUpX == -1 || leftUpY == -1 || rightDownX == -1 || rightDownY == -1)
+                {
                     //сообщить, что координаты не заданы
+                    labelEyesCoordinates.Text = "Область отслеживания не выбрана";
+                }
                 //иначе
+                else
+                {
                     //начать отслеживание взгляда...
+                    isEnabled = true;
+                    btnStartStop.Content = "Закончить отслеживание";
+                    gazePointDataStream = host.Streams.CreateGazePointDataStream();
+                    host.EnableConnection();
+                    gazePointDataStream.GazePoint(RecordGazePointToList);
+                }
+            }
             //иначе
+            else
+            {
                 //прекратить отслеживание взгляда...
+                isEnabled = false;
+                btnStartStop.Content = "Начать отслеживание";
+                host.DisableConnection();
+                gazeStream.Abort();
+                labelEyesCoordinates.Text = "";
+                if (labelAlert.Visibility == Visibility.Visible) labelAlert.Visibility = Visibility.Hidden;
+            }
+        }
+
+        private void RecordGazePointToList(double x, double y, double ts)
+        {
+            gazeStream = Dispatcher.BeginInvoke(new SetEyePointDeligate(setPos), x, y, ts);
+        }
+
+        private void setPos(double x, double y, double ts)
+        {
+            if (isEnabled == true)
+            {
+                labelEyesCoordinates.Text = "Положение взгляда:\nX = " + (int)x + "\nY = " + (int)y;
+                if (x < leftUpX || x > rightDownX || y < leftUpY || y > rightDownY)
+                {
+                    //сообщить об отвлечении
+                    if (labelAlert.Visibility != Visibility.Visible) labelAlert.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    if (labelAlert.Visibility == Visibility.Visible) labelAlert.Visibility = Visibility.Hidden;
+                }
+            }
         }
     }
 }
