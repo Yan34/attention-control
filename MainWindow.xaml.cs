@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -28,7 +29,7 @@ namespace attention_control
 
         public float tmp_leftUpX, tmp_leftUpY, tmp_rightDownX, tmp_rightDownY;
 
-        private bool isEnabled;
+        private bool isEnabled, isDistracted;
 
         private Host host = new Host();
 
@@ -40,13 +41,19 @@ namespace attention_control
 
         Task blinking=null;
 
+        private SoundPlayer sp;
+
+        CancellationTokenSource cts=null;
+
         public MainWindow()
         {
             InitializeComponent();
             isEnabled = false;
+            isDistracted = false;
             leftUpX = -1; leftUpY = -1; rightDownX = -1; rightDownY = -1;
             blinking = Blink(labelAlert, Brushes.Aqua, 500, 500, CancellationToken.None);
             labelAlert.Visibility = Visibility.Hidden;
+            sp = new SoundPlayer(Properties.Resources.alarm);
         }
 
         private void btnManualCoords_Click(object sender, RoutedEventArgs e)
@@ -99,6 +106,8 @@ namespace attention_control
             {
                 //прекратить отслеживание взгляда...
                 isEnabled = false;
+                sp.Stop();
+                if (cts != null) cts.Cancel();
                 btnStartStop.Content = "Начать отслеживание";
                 host.DisableConnection();
                 gazeStream.Abort();
@@ -122,10 +131,22 @@ namespace attention_control
                 {
                     //сообщить об отвлечении
                     if (labelAlert.Visibility != Visibility.Visible) labelAlert.Visibility = Visibility.Visible;
+                    if(!isDistracted)
+                    {
+                        isDistracted = true;
+                        cts = new CancellationTokenSource();
+                        startAlarmWithDelay(3000, cts.Token);
+                    }
                 }
                 else
                 {
                     if (labelAlert.Visibility == Visibility.Visible) labelAlert.Visibility = Visibility.Hidden;
+                    if (isDistracted)
+                    {
+                        cts.Cancel();
+                        isDistracted = false;
+                    }
+                    sp.Stop();
                 }
             }
         }
@@ -141,6 +162,12 @@ namespace attention_control
                 l.Background = Brushes.Transparent;
                 await Task.Delay(off, ct);
             }
+        }
+
+        async Task startAlarmWithDelay(int delayMillSecs, CancellationToken ct)
+        {
+            await Task.Delay(delayMillSecs, ct);
+            sp.PlayLooping();
         }
     }
 }
